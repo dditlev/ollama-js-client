@@ -135,7 +135,6 @@ export default class FetchJSONStream {
     callback: OllamaStreamCallbackType
   ) {
     try {
-      console.log("fetching", url, headers, postData);
       const response = await autofetch(url, {
         signal: this.abortController.signal,
         method: "POST",
