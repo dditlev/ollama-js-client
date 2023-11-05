@@ -21,11 +21,15 @@ If you use node v17.5.0+ and the node --experimental-fetch filname.js flag, you 
 
 IIEF & ES6 modules are available for node and the browser.
 
+## No require
+The javascript world is moving onwards and upwards, so this library is written with ES6 modules. There is no require, to use modules in node js scripts by using .mjs file extension or "type": "module" in your package.json file.
+
 ## Installation
 
 ```bash
 npm install ollama-js
 ```
+
 ## Via CDN
 
 ```html
@@ -111,9 +115,14 @@ import Ollama from "ollama-js";
 const response = await new Ollama({
   model: "llama2",
   url: "http://127.0.0.1:11434/api/",
-  system: "system prompt to (overrides what is defined in the Modelfile",
+  options:{
+    temperature:1,
+    top_p:0.9,
+    top_k:5,
+    system: "system prompt to (overrides what is defined in the Modelfile",
   template:
-    "the full prompt or prompt template (overrides what is defined in the Modelfile)",
+    "the full prompt or prompt template (overrides what is defined in the Modelfile)"
+  }
 }).prompt("Hello my ai friend");
 ```
 
@@ -230,6 +239,7 @@ await 🦙.prompt_stream("Hello",on_response)
             }
         })
     }
+    setup()
   </script>
 </body>
 ```
@@ -248,9 +258,23 @@ const 🦙 = new Ollama({
     model:"llama2",
     url:"http://127.0.0.1:11434/api/",
 })
-const response = await 🦙.prompt("create a JSON array of [{idea:string,description:string}]")
-const json = JSONparser(response)
-console.log(json) // [{idea:"create a JSON array",description:"of [{idea:string,description:string}]"}]
+const response = await 🦙.prompt("Analyse this sentance and output the result in JSON: Hello there! It's nice to meet you. Is there anything I can help you with or would you like to chat? Please let me know if there's anything specific you'd like to talk about, and I'll do my best to assist you.")
+const json = JSONparser(response.response)
+console.log(json)
+/*
+{
+  type: 'response',
+  text: "Hello there! It's nice to meet you. Is there anything I can help you with or would you like to chat? Please let me know if there's anything specific you'd like to talk about, and I'll do my best to assist you.",
+  speaker: 'Assistant',
+  tone: 'neutral',
+  intent: {
+    helpfulness: 100,
+    positivity: 100,
+    respectfulness: 100,
+    honesty: 100
+  }
+}
+*/
 ```
 
 ## Simple JSONStore
@@ -305,3 +329,7 @@ await store.destory();
 ```
 
 In node it is just a JSON file on disk, in the browser it is stored in localStorage.
+
+---
+
+Happy llamaing!
