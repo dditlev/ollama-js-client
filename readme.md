@@ -33,9 +33,9 @@ npm install ollama-js-client
 ## Via CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/ollama-js-client/browser/iife/ollama-js.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ollama-js-client/dist/browser/iife/ollama-js.global.js"></script>
 
-<script type="module" src="https://cdn.jsdelivr.net/npm/ollama-js-client/browser/index.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/ollama-js-client/dist/browser/index.js"></script>
 ```
 
 ## Import the module
