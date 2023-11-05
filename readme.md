@@ -284,7 +284,6 @@ The JSONStore is a simple way to store and retrieve data from a file in node or 
 ```js
 import JSONstore from 'ollama-js-client/JSONstore';
 const store = new JSONstore("store.json");
-await store.load();
 
 store.set("key", "value");
 

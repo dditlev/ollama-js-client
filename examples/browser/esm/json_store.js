@@ -3,7 +3,6 @@ import JSONstore from '../../../dist/browser/json_store.js';
 async function setup() {
 
     const store = new JSONstore("./test-store.json");
-    await store.load()
 
     await store.clear()
 
