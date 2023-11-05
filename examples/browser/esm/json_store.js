@@ -1,4 +1,4 @@
-import JSONstore from '../../../dist/browser/JSONstore.js';
+import JSONstore from '../../../dist/browser/json_store.js';
 
 async function setup() {
 

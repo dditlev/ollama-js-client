@@ -1,4 +1,4 @@
-import JSONparser from '../../../dist/browser/JSONparser.js';
+import JSONparser from '../../../dist/browser/json_parser.js';
 
 console.log(JSONparser);
 

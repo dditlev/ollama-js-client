@@ -1,4 +1,4 @@
-import JSONparser from '../../dist/node/JSONparser.js';
+import JSONparser from '../../dist/node/json_parser.js';
 
 function setup() {
     const example_1 = `{"hello":"world"}`
