@@ -27,22 +27,22 @@ The javascript world is moving onwards and upwards, so this library is written w
 ## Installation
 
 ```bash
-npm install ollama-js
+npm install ollama-js-client
 ```
 
 ## Via CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/ollama-js/browser/iife/ollama-js.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ollama-js-client/browser/iife/ollama-js.global.js"></script>
 
-<script type="module" src="https://cdn.jsdelivr.net/npm/ollama-js/browser/index.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/ollama-js-client/browser/index.js"></script>
 ```
 
 ## Import the module
 
 ```js
 // use in the browser as a type="module" or in node with modules enabled (mjs)
-import Ollama from "ollama-js";
+import Ollama from "ollama-js-client";
 
 // use global in the browser with script tag
 const Ollama = window.OllamaJS;
@@ -65,7 +65,7 @@ Each prompt is a fetch request. The response (last response if stream) contains 
 If you want to keep the conversation going with the context, you simple have to keep the reference to the instance.
 
 ```js
-import Ollama from "ollama-js";
+import Ollama from "ollama-js-client";
 const instance = new Ollama({
   model: "llama2",
   url: "http://127.0.0.1:11434/api/",
@@ -79,7 +79,7 @@ instance.prompt("Hello my ai friend");
 If you don't want to keep the context vector, you can just create a new instance for each prompt.
 
 ```js
-import Ollama from "ollama-js";
+import Ollama from "ollama-js-client";
 const response = await new Ollama({
   model: "llama2",
   url: "http://127.0.0.1:11434/api/",
@@ -110,7 +110,7 @@ console.log(response); // "I am not your friend, buddy."
 Add more options to the constructor to get more control over the instance.
 
 ```js
-import Ollama from "ollama-js";
+import Ollama from "ollama-js-client";
 
 const response = await new Ollama({
   model: "llama2",
@@ -131,7 +131,7 @@ const response = await new Ollama({
 Keep the reference to the instance to carry the conversation vector (context) between calls.
 
 ```js
-const Ollama = require('ollama-js');
+import Ollama from "ollama-js-client";
 const 🦙 = new Ollama({
     model:"llama2",
     url:"http://127.0.0.1:11434/api/"
@@ -148,7 +148,7 @@ const next_response = await 🦙.prompt("That's funny")
 Use the stream version of the prompt method to get the response in chunks.
 
 ```js
-import Ollama from "ollama-js";
+import Ollama from "ollama-js-client";
 const 🦙 = new Ollama({
     model:"llama2",
     url:"http://127.0.0.1:11434/api/",
@@ -174,7 +174,7 @@ const on_response = (error,response) => {
 Abort the request by calling the abort method on the instance.
 
 ```js
-import Ollama from "ollama-js";
+import Ollama from "ollama-js-client";
 const 🦙 = new Ollama({
     model:"llama2",
     url:"http://127.0.0.1:11434/api/",
@@ -203,7 +203,7 @@ await 🦙.prompt_stream("Hello",on_response)
 
 ```html
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/ollama-js/browser/iife/ollama-js.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ollama-js-client/browser/iife/ollama-js.global.js"></script>
 </head>
 <body>
   <div id="output"></div>
@@ -253,7 +253,7 @@ await 🦙.prompt_stream("Hello",on_response)
 Getting JSON in return is awesome, but it is not always a pure JSON response, the JSONparser is a two step process, first it will try to parse the response as JSON, if that fails it will try to find the first valid json line and parse that until the end of a valid json object.
 
 ```js
-import JSONparser from 'ollama-js/dist/node/JSONparser.js';
+import JSONparser from 'ollama-js-client/JSONparser';
 const 🦙 = new Ollama({
     model:"llama2",
     url:"http://127.0.0.1:11434/api/",
@@ -282,7 +282,7 @@ console.log(json)
 The JSONStore is a simple way to store and retrieve data from a file in node or localStorage in the browser. It is the basic storage requirement for exploring the ollama api and keeping some state.
 
 ```js
-import JSONstore from 'ollama-js/dist/node/JSONstore.js';
+import JSONstore from 'ollama-js-client/JSONstore';
 const store = new JSONstore("store.json");
 await store.load();
 

@@ -1,5 +1,5 @@
 {
-  "name": "ollama-js",
+  "name": "ollama-js-client",
   "version": "1.0.0",
   "description": "JS fetch wrapper for consuming the Ollama API in node and the browser",
   "repository": {
