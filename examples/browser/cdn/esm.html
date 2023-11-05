@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html data-theme="lofi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ollama-js in the browser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <h1>Ollama-js in the browser</h1>
+    <p>check the console</p>
+    <script type="module">
+        import Ollama from 'https://cdn.jsdelivr.net/npm/ollama-js-client/dist/browser/index.js';
+
+        async function main() {
+            const ollama = new Ollama({
+                url:"http://127.0.0.1:11434/api/",
+                model:"llama2",
+            });
+            const response = await ollama.prompt("Hello tell me about something very specific but completly random.")
+            console.log(response);
+            const next_response = await ollama.prompt("Elaborate on that.")
+            console.log(next_response);
+        }
+        main();
+    </script>
+  </body>
+</html>
