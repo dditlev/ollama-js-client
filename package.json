@@ -1,9 +1,12 @@
 {
   "name": "ollama-js",
   "version": "1.0.0",
-  "description": "JS fetch wrapper for consuming the Ollama API",
+  "description": "JS fetch wrapper for consuming the Ollama API in node and the browser",
+  "repository": {
+    "type":"git",
+    "url":"https://github.com/dditlev/ollama-js.git"
+  },
   "type": "module",
-  "main": "dist/node/cjs/index.cjs",
   "module": "dist/node/index.js",
   "exports": {
     ".": {
@@ -42,8 +45,8 @@
     "ai",
     "llama2"
   ],
-  "author": "Ditlev T",
-  "license": "ISC",
+  "author": "Ditlev Tøjner",
+  "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.23.0",
     "@babel/core": "^7.23.2",
