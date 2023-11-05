@@ -10,8 +10,8 @@ import { terser } from "rollup-plugin-terser";
 const nodeESMConfig = {
   input: {
     index: "src/index.ts",
-    JSONstore: "src/json_store.ts",
-    JSONparser: "src/json_parser.ts",
+    json_store: "src/json_store.ts",
+    json_parser: "src/json_parser.ts",
   }, // change to your entry point TS file
   output: {
     dir: "dist/node",
@@ -32,37 +32,12 @@ const nodeESMConfig = {
   external: ["node-fetch", "stream"],
 };
 
-// // CJS configuration for Node.js
-// const nodeCJSConfig = {
-//   input: {
-//     index: "src/index.ts",
-//     JSONstore: "src/json_store.ts",
-//     JSONparser: "src/json_parser.ts",
-//   },
-//   output: {
-//     dir: "dist/node/cjs",
-//     format: "cjs",
-//     sourcemap: true,
-//     entryFileNames: "[name].cjs",
-//   },
-//   plugins: [
-//     typescript({
-//       tsconfig: "./tsconfig.json",
-//       declaration: true,
-//       declarationDir: "dist/node/cjs/types",
-//     }),
-//     json(),
-//     terser(),
-//   ],
-//   external: ["stream"],
-// };
-
 // Browser configuration
 const browserESMConfig = {
   input: {
     index: "src/index.ts",
-    JSONstore: "src/json_store.ts",
-    JSONparser: "src/json_parser.ts",
+    json_store: "src/json_store.ts",
+    json_parser: "src/json_parser.ts",
   }, // change to your entry point TS file
   output: {
     dir: "dist/browser",
@@ -121,7 +96,6 @@ const iifeConfig = (name, isMain = false, output_filename) => {
 
 export default [
   nodeESMConfig,
-  // nodeCJSConfig, // outphased
   browserESMConfig,
   iifeConfig("index", true, "ollama-js"),
   iifeConfig("json_store", false, "ollama-js-json-store"),
