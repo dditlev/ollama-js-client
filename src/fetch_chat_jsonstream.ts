@@ -5,25 +5,33 @@ export interface OllamaAPIError {
 }
 export type OllamaAPIErrorOrResponse = OllamaAPIError | false;
 
-export interface OllamaStreamResponse {
+interface OllamaChatMessagePart {
+  role: "assistant";
+  content: string;
+  images: null | string[];
+}
+export interface OllamaStreamChatResponse {
   model: string;
   created_at: string;
-  response: string;
-  context?: number[];
+  message: OllamaChatMessagePart;
   done: boolean;
-  total_duration?: number;
-  load_duration?: number;
-  sample_count?: number;
-  sample_duration?: number;
-  prompt_eval_count?: number;
-  prompt_eval_duration?: number;
-  eval_count?: number;
-  eval_duration?: number;
+}
+export interface OllamaFinalStreamChatResponse {
+  model: string;
+  created_at: string;
+  done: boolean;
+  message:OllamaChatMessagePart;
+  total_duration: number;
+  load_duration: number;
+  prompt_eval_count: number;
+  prompt_eval_duration: number;
+  eval_count: number;
+  eval_duration: number;
 }
 
-export type OllamaStreamCallbackType = (
+export type OllamaChatStreamCallbackType = (
   error: OllamaAPIErrorOrResponse,
-  response?: OllamaStreamResponse
+  response?: OllamaStreamChatResponse
 ) => void;
 
 // Helper function to determine environment
@@ -37,7 +45,7 @@ function isBrowserReadableStream(
 }
 
 // Main class to fetch and process the JSON stream
-export default class FetchJSONStream {
+export default class FetchChatJSONStream {
   private abortController: AbortController;
 
   constructor() {
@@ -51,7 +59,7 @@ export default class FetchJSONStream {
   private async processStreamReader(
     reader: ReadableStreamDefaultReader<Uint8Array>,
     decoder: TextDecoder,
-    callback: OllamaStreamCallbackType
+    callback: OllamaChatStreamCallbackType
   ) {
     let buffer = "";
     try {
@@ -77,7 +85,7 @@ export default class FetchJSONStream {
   private async processNodeStream(
     stream: NodeJS.ReadableStream,
     decoder: TextDecoder,
-    callback: OllamaStreamCallbackType
+    callback: OllamaChatStreamCallbackType
   ) {
     let buffer = "";
     stream.on("data", (chunk) => {
@@ -100,11 +108,11 @@ export default class FetchJSONStream {
 
   private processBuffer(
     buffer: string,
-    callback: OllamaStreamCallbackType,
+    callback: OllamaChatStreamCallbackType,
     flush: boolean = false
   ): string {
     let newlineIndex;
-    let lastJson: OllamaStreamResponse | null = null;
+    let lastJson: OllamaStreamChatResponse | null = null;
 
     while ((newlineIndex = buffer.indexOf("\n")) !== -1) {
       const line = buffer.slice(0, newlineIndex).trim();
@@ -112,7 +120,7 @@ export default class FetchJSONStream {
 
       if (line) {
         try {
-          const json: OllamaStreamResponse = JSON.parse(line);
+          const json: OllamaStreamChatResponse = JSON.parse(line);
           lastJson = json; // Keep the last valid JSON
           callback(false, json);
         } catch (error) {
@@ -124,7 +132,7 @@ export default class FetchJSONStream {
     // Flush the buffer if true, which is the case when the stream ends.
     if (flush && buffer.trim()) {
       try {
-        const json: OllamaStreamResponse = JSON.parse(buffer);
+        const json: OllamaStreamChatResponse = JSON.parse(buffer);
         callback(false, json);
       } catch (error) {
         // If there's an error parsing the buffer, check if we had a previous valid JSON object
@@ -149,7 +157,7 @@ export default class FetchJSONStream {
     url: string,
     headers: HeadersInit,
     postData: string,
-    callback: OllamaStreamCallbackType
+    callback: OllamaChatStreamCallbackType
   ) {
     try {
       const response = await autofetch(url, {

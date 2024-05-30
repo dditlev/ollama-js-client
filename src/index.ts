@@ -3,7 +3,12 @@ import FetchJSONStream, {
   OllamaStreamResponse,
   OllamaAPIErrorOrResponse,
 } from "./fetch_jsonstream";
-import FetchJSON, { OllamaReponse } from "./fetch_json";
+import FetchChatJSONStream, {
+  OllamaStreamChatResponse,
+  OllamaFinalStreamChatResponse,
+  OllamaChatStreamCallbackType,
+} from "./fetch_chat_jsonstream";
+import { OllamaPromptReponse, FetchJSON, FetchChatJSON } from "./fetch_json";
 
 // https://github.com/jmorganca/ollama/blob/main/docs/modelfile.md#valid-parameters-and-values
 interface OllamaGenerationParameters {
@@ -31,10 +36,16 @@ interface OllamaOptions {
   custom_headers?: HeadersInit;
   options?: OllamaGenerationParameters;
   verbose?: boolean;
+  stream?: boolean;
+}
+
+interface OllamaChatMessage {
+  role: "system" | "assistant" | "user";
+  content: string;
 }
 
 export default class Ollama {
-  // the ollama model name (eg. llama2)
+  // the ollama model name (eg. llama3)
   private model: string;
 
   // the ollama server url (avoid using localhost (use 127.0.0.1) for nodejs dns issues)
@@ -45,6 +56,7 @@ export default class Ollama {
 
   // add model specific options
   private options: OllamaGenerationParameters;
+
   // enable verbose logging
   private verbose: boolean;
 
@@ -52,7 +64,7 @@ export default class Ollama {
   private context: number[];
 
   // current_stream is used to store the current stream instance
-  private current_stream: FetchJSONStream | null;
+  private current_stream: FetchJSONStream | FetchChatJSONStream | null;
 
   // current_json_fetch is used to store the current json fetch instance
   private current_json_fetch: FetchJSON | null;
@@ -74,9 +86,9 @@ export default class Ollama {
   }
 
   static from(connection: string): Ollama {
-    const [model, url] = connection.split("@");
+    const [model, url] = (connection || "").split("@");
     if (!model || !url) {
-      throw new Error("Invalid connection string");
+      throw new Error("Invalid connection string: use model@url format.");
     }
     return new Ollama({ model: model.trim(), url: url.trim() });
   }
@@ -94,7 +106,20 @@ export default class Ollama {
       body.options = this.options;
     }
     if (this.verbose) {
-        console.log("Ollama request body:", body);
+      console.log("Ollama request body:", body);
+    }
+    return body;
+  }
+  private createRequestBodyChat(
+    messages: OllamaChatMessage[],
+    stream = true
+  ): object {
+    const body: any = { messages, model: this.model, stream };
+    if (this.options) {
+      body.options = this.options;
+    }
+    if (this.verbose) {
+      console.log("Ollama request chat body:", body);
     }
     return body;
   }
@@ -104,18 +129,16 @@ export default class Ollama {
     callback: OllamaStreamCallbackType
   ): Promise<FetchJSONStream> {
     this.current_stream = new FetchJSONStream();
-    const body = this.createRequestBody(prompt, true);
-
     try {
       await this.current_stream.fetch(
         `${this.url}generate`,
         this.custom_headers,
-        JSON.stringify(body),
+        JSON.stringify(this.createRequestBody(prompt, true)),
         (error: OllamaAPIErrorOrResponse, response?: OllamaStreamResponse) => {
           if (error) {
             callback(error);
           } else if (response) {
-            if (response.done) {
+            if (response.done && response.context) {
               this.context = response.context;
             }
             callback(false, response);
@@ -123,9 +146,9 @@ export default class Ollama {
         }
       );
     } catch (error) {
-    if (this.verbose) {
+      if (this.verbose) {
         console.error("Ollama fetch request error:", error);
-    }
+      }
       callback({
         error: error instanceof Error ? error.message : String(error),
       });
@@ -134,22 +157,72 @@ export default class Ollama {
     return this.current_stream;
   }
 
-  async prompt(prompt: string): Promise<OllamaReponse> {
+  async prompt(prompt: string): Promise<OllamaPromptReponse> {
     if (!this.current_json_fetch) {
       this.current_json_fetch = new FetchJSON();
     }
-    const body = this.createRequestBody(prompt);
     const res = await this.current_json_fetch.fetch(
       `${this.url}generate`,
       this.custom_headers,
-      JSON.stringify(body)
+      JSON.stringify(this.createRequestBody(prompt))
     );
     if (this.verbose) {
-        console.log("Ollama fetch reponse:", res);
+      console.log("Ollama fetch reponse:", res);
     }
     if (res.context) {
       this.context = res.context;
     }
     return res;
+  }
+
+  // async chat_request(messages: OllamaChatMessage[]): Promise<OllamaFinalStreamChatResponse> {} // chat is not a stream
+
+  async chat_request(
+    messages: OllamaChatMessage[]
+  ): Promise<OllamaFinalStreamChatResponse> {
+    const res = await (new FetchChatJSON()).fetch(
+      `${this.url}chat`,
+      this.custom_headers,
+      JSON.stringify(this.createRequestBodyChat(messages, false))
+    );
+    if (this.verbose) {
+      console.log("Ollama fetch reponse:", res);
+    }
+    return res;
+  }
+
+  // chat is a stream
+  async chat(
+    messages: OllamaChatMessage[],
+    callback: OllamaChatStreamCallbackType
+  ): Promise<FetchChatJSONStream> {
+    this.current_stream = new FetchChatJSONStream();
+
+    try {
+      await this.current_stream.fetch(
+        `${this.url}chat`,
+        this.custom_headers,
+        JSON.stringify(this.createRequestBodyChat(messages)),
+        (
+          error: OllamaAPIErrorOrResponse,
+          response?: OllamaStreamChatResponse
+        ) => {
+          if (error) {
+            callback(error);
+          } else {
+            callback(false, response);
+          }
+        }
+      );
+    } catch (error) {
+      if (this.verbose) {
+        console.error("Ollama fetch request error:", error);
+      }
+      callback({
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+
+    return this.current_stream;
   }
 }
