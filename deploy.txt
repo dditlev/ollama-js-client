@@ -1,0 +1,8 @@
+1. commit everything and add a new tag
+git tag v1.x.x (matching the version in package.json)
+git push origin v1.x.x
+
+2. npm publish
+npm run build
+npm login
+npm publish
