@@ -3,7 +3,7 @@ import Ollama from '../../dist/node/index.js';
 async function setup() {
     const ollama = new Ollama({
         url:"http://127.0.0.1:11434/api/",
-        model:"llama2",
+        model:"llama3",
         options:{
             temperature:1,
             top_p:0.9,

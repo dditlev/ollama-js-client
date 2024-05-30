@@ -3,7 +3,7 @@ import Ollama from '../../dist/node/index.js';
 async function setup() {
     const ollama = new Ollama({
         url:"http://127.0.0.1:11434/api/",
-        model:"llama2",
+        model:"llama3",
     });
     const responded = []
     const response = await ollama.prompt_stream("Hello tell me about something very specific but completly random.",(error,response) => {

@@ -19,7 +19,7 @@
         async function main() {
           const ollama = new window.OllamaJS({
               url:"http://127.0.0.1:11434/api/",
-              model:"llama2",
+              model:"llama3",
           });
           const response = await ollama.prompt("Hello tell me about something very specific but completly random.")
           console.log(response);
