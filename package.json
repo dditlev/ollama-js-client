@@ -7,10 +7,12 @@
     "url":"https://github.com/dditlev/ollama-js.git"
   },
   "type": "module",
-  "module": "dist/node/index.js",
+  "module": "./dist/node/index.js",
+  "main": "./dist/node/index.js",
   "exports": {
     ".": {
-      "import": "./dist/node/index.js"
+      "import": "./dist/node/index.js",
+      "types": "./dist/node/types/index.d.ts"
     },
     "./JSONstore": {
       "import": "./dist/node/json_store.js"
@@ -29,7 +31,7 @@
     }
   },
   "browser": "./dist/browser/index.js",
-  "types": "dist/node/types/index.d.ts",
+  "types": "./dist/node/types/index.d.ts",
   "directories": {
     "example": "examples"
   },
@@ -63,6 +65,6 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "node-fetch": "^3.0.0"
+    "node-fetch": "^3.3.0"
   }
 }
