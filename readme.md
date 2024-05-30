@@ -1,17 +1,17 @@
 ![silly JS llama](silly-js-llama.png)
 
 # Unofficial Ollama JS (browser & node) library
-Ollama deserves a nice js wrapper. Ollama is an awesome piece of llama software that allows running AI models locally and interacting with them via an API. This API is wrapped nicely in this library.
 
-Based on [ollama api docs](https://github.com/jmorganca/ollama/blob/main/docs/api.md) –
+Ollama is an awesome piece of llama software that allows running AI models locally and interacting with them via an API. This API is wrapped nicely in this library.
+
+Originally based on [ollama api docs](https://github.com/jmorganca/ollama/blob/main/docs/api.md) –
 [commit](https://github.com/jmorganca/ollama/commit/f21bd6210d0d331ab94468791b4761e6bb5bc638)
 
-
-### A simple wrapper for prompting the local ollama api.
+### A simple wrapper for prompting your local ollama API or using the chat format for more structure.
 
 - It is a wrap around fetch to make it easier to use the ollama api.
-- It manages the context vector for continuous conversations.
-- Use the stream or non-stream version of the prompt method to get the response.
+- When prompting, it manages the context vector for continuous conversations.
+- Use the stream or non-stream version of the prompt or chat method to get the response.
 
 ### Works in node and the browser.
 
@@ -22,7 +22,8 @@ If you use node v17.5.0+ and the node --experimental-fetch filname.js flag, you 
 IIEF & ES6 modules are available for node and the browser.
 
 ## No require
-The javascript world is moving onwards and upwards, so this library is written with ES6 modules. There is no require, to use modules in node js scripts by using .mjs file extension or "type": "module" in your package.json file.
+
+This library is written with ES6 modules. There is no require. Use this library in NodeJS by either using the _.mjs_ file extension or _"type": "module"_ in your package.json file.
 
 ## Installation
 
@@ -35,7 +36,10 @@ npm install ollama-js-client
 ```html
 <script src="https://cdn.jsdelivr.net/npm/ollama-js-client/dist/browser/iife/ollama-js.global.js"></script>
 
-<script type="module" src="https://cdn.jsdelivr.net/npm/ollama-js-client/dist/browser/index.js"></script>
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/ollama-js-client/dist/browser/index.js"
+></script>
 ```
 
 ## Import the module
@@ -48,17 +52,70 @@ import Ollama from "ollama-js-client";
 const Ollama = window.OllamaJS;
 ```
 
-## The two questions
+## There are two ways to use the module:
 
-### 1. Stream or no stream
+1. Prompt with a text string.
 
-Depending on the use case, you can use the stream or non-stream version of the prompt method. If you don't mind waiting for the whole response, use the non-stream version. If you want to get the response in chunks, use the stream version.
+2. "Chat" with an array of messages (like the OpenAI GPT API).
 
-### 2. Memory or no memory
+Prompt is a simplfied version of chat, that operates on a context vector that can be kept between calls (this library manages this automatically).
+
+Chat has moved away from the context vector and now operates on an array of messages. This is a nicer way to interact with the API, allowing role _(system,assistant,user)_ and the management of conversations in a more structured way.
+
+## There are two ways to receive the response
+
+1. Non-streaming - The whole response is returned at once.
+
+2. Streaming - The response is returned in chunks.
+
+Depending on the use case, you can use the stream or non-stream version of the prompt and chat method. If you don't mind waiting for the whole response, use the non-stream version. If you want to get the response in chunks, use the stream version.
+
+Stream is useful when building UI, so the user can see the responses as they come in.
+
+---
+
+# Chat with messages
+
+Using the _chat_ or *chat_request* method and the OpenAI GPT API message format.
+
+```js
+import Ollama from "ollama-js-client";
+
+// default stream version
+const ollama_instance = new Ollama({
+  model: "llama3",
+  url: "http://127.0.0.1:11434/api/",
+});
+ollama_instance.chat([
+  { role: "system", content: "You are a llama AI" },
+  { role: "assistant", content: "Hello, I am your llama AI friend." },
+  { role: "user", content: "That's funny" },
+], (error, response) => {
+  if (error) {
+    console.error(error);
+  } else {
+    console.log(response);
+  }
+});
+
+// non-stream
+const response = await new Ollama({
+  model: "llama3",
+  url: "http://127.0.0.1:11434/api/",
+}).chat_request([
+  { role: "user", content: "Hello my ai friend" },
+  { role: "assistant", content: "Hello, I am your llama AI friend." },
+  { role: "user", content: "That's funny" },
+]);
+```
+
+---
+# Prompt with a text
+Using the *prompt* or *prompt_stream* method
+
+### Memory or no memory
 
 Each prompt is a fetch request. The response (last response if stream) contains a context vector. The context vector is used to keep the conversation going. The context is sent with the next prompt request. The context is cleared with the clear method.
-
-#### Take the contextwindow of the model into account
 
 ### Keep the conversation going
 
@@ -66,40 +123,51 @@ If you want to keep the conversation going with the context, you simple have to 
 
 ```js
 import Ollama from "ollama-js-client";
-const instance = new Ollama({
-  model: "llama2",
+const ollama_instance = new Ollama({
+  model: "llama3",
   url: "http://127.0.0.1:11434/api/",
 });
-instance.prompt("Hello my ai friend");
+ollama_instance.prompt("Hello my llama AI friend");
 // instance will keep the context vector
 ```
 
 ### Who needs memory?
 
-If you don't want to keep the context vector, you can just create a new instance for each prompt.
+If you don't want to keep the context vector, you can just create a new instance for each prompt or clear the context vector with the _.clear()_ method.
 
 ```js
 import Ollama from "ollama-js-client";
+
 const response = await new Ollama({
-  model: "llama2",
+  model: "llama3",
   url: "http://127.0.0.1:11434/api/",
 }).prompt("Hello my ai friend");
 // context vector is lost
+
+// or clear the instance context vector
+const ollama_instance = await new Ollama({
+  model: "llama3",
+  url: "http://127.0.0.1:11434/api/",
+});
+
+ollama_instance.prompt("Hello my llama AI friend");
+
+ollama_instance.clear();
+// context vector is lost/reset
 ```
 
 ### No memory short sugar syntax
 
-This is the shortest way to use the module. It will create a new Ollama instance and call prompt on it. It will not carry the context vector between calls, as the reference to the instance is lost.
+This is the shortest way to use the module. It will create a new Ollama instance and call prompt on it. It will not carry the context vector between calls, as the "reference" to the instance is lost.
 
 ## The From connection string is
 
 ```
-<model> @ <url>
 <model>@<url>
 ```
 
 ```js
-const response = await Ollama.from("llama2@http://127.0.0.1:11434/api/").prompt(
+const response = await Ollama.from("llama3@http://127.0.0.1:11434/api/").prompt(
   "Hello my ai friend"
 );
 console.log(response); // "I am not your friend, buddy."
@@ -113,27 +181,27 @@ Add more options to the constructor to get more control over the instance.
 import Ollama from "ollama-js-client";
 
 const response = await new Ollama({
-  model: "llama2",
+  model: "llama3",
   url: "http://127.0.0.1:11434/api/",
-  options:{
-    temperature:1,
-    top_p:0.9,
-    top_k:5,
+  options: {
+    temperature: 1,
+    top_p: 0.9,
+    top_k: 5,
     system: "system prompt to (overrides what is defined in the Modelfile",
-  template:
-    "the full prompt or prompt template (overrides what is defined in the Modelfile)"
-  }
+    template:
+      "the full prompt or prompt template (overrides what is defined in the Modelfile)",
+  },
 }).prompt("Hello my ai friend");
 ```
 
-## Continue conversation example
+## Continue conversation example (prompt)
 
 Keep the reference to the instance to carry the conversation vector (context) between calls.
 
 ```js
 import Ollama from "ollama-js-client";
 const 🦙 = new Ollama({
-    model:"llama2",
+    model:"llama3",
     url:"http://127.0.0.1:11434/api/"
 })
 const response = await 🦙.prompt("Hello my ai friend")
@@ -143,14 +211,14 @@ const next_response = await 🦙.prompt("That's funny")
 🦙.clear()
 ```
 
-## Stream example
+## Prompt stream example
 
 Use the stream version of the prompt method to get the response in chunks.
 
 ```js
 import Ollama from "ollama-js-client";
 const 🦙 = new Ollama({
-    model:"llama2",
+    model:"llama3",
     url:"http://127.0.0.1:11434/api/",
 })
 const responded = []
@@ -176,7 +244,7 @@ Abort the request by calling the abort method on the instance.
 ```js
 import Ollama from "ollama-js-client";
 const 🦙 = new Ollama({
-    model:"llama2",
+    model:"llama3",
     url:"http://127.0.0.1:11434/api/",
 })
 let responded = ""
@@ -203,7 +271,7 @@ await 🦙.prompt_stream("Hello",on_response)
 
 ```html
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/ollama-js-client/browser/iife/ollama-js.global.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ollama-js-client/browser/iife/ollama-js.global.js"></script>
 </head>
 <body>
   <div id="output"></div>
@@ -216,7 +284,7 @@ await 🦙.prompt_stream("Hello",on_response)
         const output = document.getElementById("output")
 
         const 🦙 = new Ollama({
-            model:"llama2",
+            model:"llama3",
             url:"http://127.0.0.1:11434/api/",
         })
 
@@ -244,9 +312,9 @@ await 🦙.prompt_stream("Hello",on_response)
 </body>
 ```
 
+---
 # Extra features
 
----
 
 ## Use the expanded JSONparser
 
@@ -255,7 +323,7 @@ Getting JSON in return is awesome, but it is not always a pure JSON response, th
 ```js
 import JSONparser from 'ollama-js-client/JSONparser';
 const 🦙 = new Ollama({
-    model:"llama2",
+    model:"llama3",
     url:"http://127.0.0.1:11434/api/",
 })
 const response = await 🦙.prompt("Analyse this sentance and output the result in JSON: Hello there! It's nice to meet you. Is there anything I can help you with or would you like to chat? Please let me know if there's anything specific you'd like to talk about, and I'll do my best to assist you.")
@@ -327,7 +395,7 @@ store.clear();
 await store.destory();
 ```
 
-In node it is just a JSON file on disk, in the browser it is stored in localStorage.
+In node it is just a JSON file on disk, in the browser it is stored in localStorage and can be downloaded as a JSON file via _store.download()_.
 
 ---
 
