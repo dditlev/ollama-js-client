@@ -1,12 +1,16 @@
 {
-    "compilerOptions": {
-      "target": "ESNext",
-      "module": "ESNext",
-      "esModuleInterop": true,
-      "sourceMap": true,
-      "moduleResolution": "node"
-    },
-    "include": ["src/**/*"],
-    "exclude": ["node_modules", "dist"]
-  }
-  
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "typeRoots": ["./node_modules/@types", "./node_modules", "./"],
+    "types": ["node"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
